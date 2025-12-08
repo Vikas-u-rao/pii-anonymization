@@ -1,0 +1,140 @@
+# =========================================
+# PII Anonymization Gateway - Docker Compose
+# =========================================
+# Production-ready setup with Redis
+
+version: '3.8'
+
+services:
+  # =========================================
+  # PII Gateway API
+  # =========================================
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: pii-gateway-api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      # App Settings
+      - APP_NAME=PII Anonymization Gateway
+      - APP_VERSION=1.0.0
+      - DEBUG=false
+      
+      # OpenAI Settings (use .env file for secrets)
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_MODEL=${OPENAI_MODEL:-gpt-3.5-turbo}
+      - OPENAI_MAX_TOKENS=${OPENAI_MAX_TOKENS:-1000}
+      - OPENAI_TEMPERATURE=${OPENAI_TEMPERATURE:-0.7}
+      
+      # Redis Settings
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-}
+      - REDIS_DB=0
+      - REDIS_TTL_SECONDS=${REDIS_TTL_SECONDS:-3600}
+      
+      # Presidio Settings
+      - PRESIDIO_LANGUAGE=en
+      - PRESIDIO_SCORE_THRESHOLD=0.5
+    
+    depends_on:
+      redis:
+        condition: service_healthy
+    
+    networks:
+      - pii-network
+    
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    
+    # Resource limits (adjust based on your needs)
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+  # =========================================
+  # Redis - State Management
+  # =========================================
+  redis:
+    image: redis:7-alpine
+    container_name: pii-gateway-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    
+    # Optional: Enable password authentication
+    command: >
+      redis-server
+      --appendonly yes
+      --maxmemory 256mb
+      --maxmemory-policy allkeys-lru
+      ${REDIS_PASSWORD:+--requirepass ${REDIS_PASSWORD}}
+    
+    volumes:
+      - redis-data:/data
+    
+    networks:
+      - pii-network
+    
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+
+  # =========================================
+  # Redis Commander - Admin UI (Optional)
+  # =========================================
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: pii-gateway-redis-ui
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+      - HTTP_USER=${REDIS_UI_USER:-admin}
+      - HTTP_PASSWORD=${REDIS_UI_PASSWORD:-admin}
+    
+    depends_on:
+      - redis
+    
+    networks:
+      - pii-network
+    
+    profiles:
+      - debug  # Only starts with: docker-compose --profile debug up
+
+# =========================================
+# Networks
+# =========================================
+networks:
+  pii-network:
+    driver: bridge
+    name: pii-gateway-network
+
+# =========================================
+# Volumes
+# =========================================
+volumes:
+  redis-data:
+    name: pii-gateway-redis-data

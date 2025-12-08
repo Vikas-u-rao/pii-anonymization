@@ -1,0 +1,37 @@
+# PII Anonymization Gateway
+# Production Dependencies
+
+# Web Framework
+fastapi==0.109.0
+uvicorn[standard]==0.27.0
+pydantic==2.5.3
+pydantic-settings==2.1.0
+
+# PII Detection
+presidio-analyzer==2.2.354
+presidio-anonymizer==2.2.354
+spacy==3.7.2
+
+# LLM Integration (OpenAI SDK works with Gemini via OpenAI-compatible API)
+openai==1.12.0
+
+# State Management
+redis==5.0.1
+
+# Security & Middleware
+slowapi>=0.1.9
+
+# Frontend UI
+gradio>=5.0.0
+
+# Utilities
+python-dotenv==1.0.0
+python-multipart==0.0.6
+
+# Testing
+pytest==8.0.0
+pytest-asyncio==0.23.0
+httpx==0.26.0
+
+# Optional: For enhanced Spacy models
+# Download separately: python -m spacy download en_core_web_lg
