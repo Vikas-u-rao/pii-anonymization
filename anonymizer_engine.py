@@ -24,6 +24,67 @@ class AnonymizationResult:
     original_text: str
 
 
+# Common brand names and words that should NOT be detected as person names
+PERSON_DENY_LIST = {
+    # Social Media & Tech Companies
+    "linkedin", "facebook", "twitter", "instagram", "youtube", "tiktok", "snapchat",
+    "whatsapp", "telegram", "discord", "reddit", "pinterest", "tumblr", "medium",
+    "google", "microsoft", "apple", "amazon", "netflix", "spotify", "uber", "lyft",
+    "airbnb", "dropbox", "slack", "zoom", "skype", "teams", "outlook", "gmail",
+    "yahoo", "bing", "duckduckgo", "brave", "firefox", "chrome", "safari", "edge",
+    "paypal", "stripe", "razorpay", "paytm", "phonepe", "gpay", "venmo", "cashapp",
+    
+    # AI/ML & Developer Tools
+    "chatgpt", "openai", "gemini", "claude", "copilot", "alexa", "siri", "cortana",
+    "github", "gitlab", "bitbucket", "jira", "confluence", "notion", "figma", "canva",
+    "docker", "kubernetes", "terraform", "ansible", "jenkins", "travis", "circleci",
+    "mongodb", "postgres", "mysql", "redis", "elasticsearch", "kafka", "rabbitmq",
+    "aws", "azure", "gcp", "heroku", "vercel", "netlify", "digitalocean", "cloudflare",
+    "pytorch", "tensorflow", "keras", "scikit", "pandas", "numpy", "jupyter",
+    
+    # Professional Platforms & Services
+    "glassdoor", "indeed", "naukri", "monster", "angel", "wellfound", "upwork", "fiverr",
+    "coursera", "udemy", "edx", "udacity", "pluralsight", "skillshare", "codecademy",
+    "leetcode", "hackerrank", "codechef", "codeforces", "topcoder", "kaggle",
+    "stackoverflow", "quora", "wikipedia", "arxiv", "researchgate",
+    
+    # Days and Months
+    "monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday",
+    "january", "february", "march", "april", "may", "june", "july", "august",
+    "september", "october", "november", "december",
+    
+    # Countries and Regions
+    "india", "usa", "america", "europe", "asia", "africa", "australia", "canada",
+    "england", "britain", "china", "japan", "germany", "france", "italy", "spain",
+    "brazil", "mexico", "russia", "korea", "singapore", "dubai", "london", "paris",
+    "tokyo", "beijing", "sydney", "toronto", "berlin", "mumbai", "delhi", "bangalore",
+    "hyderabad", "chennai", "kolkata", "pune", "ahmedabad", "jaipur", "lucknow",
+    
+    # Job Titles and Roles
+    "ceo", "cto", "cfo", "coo", "cmo", "cio", "vp", "svp", "evp", "avp",
+    "director", "manager", "lead", "senior", "junior", "intern", "associate",
+    "engineer", "developer", "analyst", "consultant", "architect", "designer",
+    "founder", "cofounder", "partner", "president", "chairman", "head",
+    
+    # Common Words & Titles
+    "hello", "hi", "hey", "dear", "thanks", "thank", "regards", "sincerely",
+    "mr", "mrs", "ms", "dr", "prof", "sir", "madam", "miss",
+    "software", "hardware", "data", "cloud", "mobile", "web", "frontend", "backend",
+    "fullstack", "devops", "machine", "learning", "artificial", "intelligence",
+    "resume", "portfolio", "profile", "bio", "summary", "experience", "skills",
+    
+    # Indian Companies & Brands
+    "infosys", "wipro", "tcs", "hcl", "cognizant", "accenture", "deloitte", "kpmg",
+    "flipkart", "swiggy", "zomato", "ola", "byju", "unacademy", "zerodha", "cred",
+    "reliance", "tata", "mahindra", "bajaj", "hdfc", "icici", "axis", "kotak", "sbi",
+    
+    # Education
+    "iit", "iim", "nit", "bits", "vit", "mit", "stanford", "harvard", "oxford",
+    "cambridge", "berkeley", "cmu", "caltech", "princeton", "yale", "cornell",
+    "university", "college", "institute", "school", "academy",
+}
+
+
 class PIIAnonymizer:
     """
     Production PII Anonymization Engine.
@@ -129,14 +190,29 @@ class PIIAnonymizer:
         """
         lang = language or self.language
         
+        # Use Presidio's built-in allow_list for exact matches
+        # Convert deny list to allow list format for common words
+        allow_list = list(PERSON_DENY_LIST)
+        
         results = self.analyzer.analyze(
             text=text,
             language=lang,
             entities=entities,
-            score_threshold=self.score_threshold
+            score_threshold=self.score_threshold,
+            allow_list=allow_list  # Presidio's native filtering
         )
         
-        return self._resolve_overlaps(results)
+        # Additional filtering for case-insensitive matches not caught by allow_list
+        filtered_results = []
+        for result in results:
+            if result.entity_type == "PERSON":
+                detected_text = text[result.start:result.end].lower().strip()
+                if detected_text in PERSON_DENY_LIST:
+                    logger.debug(f"Filtered false positive PERSON: {detected_text}")
+                    continue
+            filtered_results.append(result)
+        
+        return self._resolve_overlaps(filtered_results)
     
     def anonymize(self, text: str) -> AnonymizationResult:
         """
