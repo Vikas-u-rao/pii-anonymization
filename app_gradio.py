@@ -136,8 +136,8 @@ def chat_with_llm(user_message: str) -> tuple[str, str, str, str, str]:
             entities_display = "\n**PII Detected & Protected:**\n"
             for entity in result.entities_found:
                 if isinstance(entity, dict):
-                    entity_type = entity.get("entity_type", "UNKNOWN")
-                    original = entity.get("original_text", "")
+                    entity_type = entity.get("type", "UNKNOWN")
+                    original = entity.get("original", "")
                     placeholder = entity.get("placeholder", "")
                 else:
                     entity_type = entity.entity_type
