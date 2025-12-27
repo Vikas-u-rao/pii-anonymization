@@ -21,14 +21,14 @@ class Settings(BaseSettings):
     
     # OpenAI Settings
     openai_api_key: str = ""
-    openai_model: str = "gpt-3.5-turbo"
+    openai_model: str = "gpt-4o"
     openai_max_tokens: int = 1000
     openai_temperature: float = 0.7
     openai_base_url: Optional[str] = None  # Custom base URL
     
     # Gemini Settings (uses OpenAI-compatible API)
     gemini_api_key: str = ""
-    gemini_model: str = "gemini-2.0-flash-exp"
+    gemini_model: str = "gemini-2.5-flash-lite"
     gemini_base_url: str = "https://generativelanguage.googleapis.com/v1beta/openai/"
     
     # Redis Settings
