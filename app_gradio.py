@@ -59,8 +59,8 @@ def anonymize_text(text: str) -> tuple[str, str, str]:
         for entity in result.entities_found:
             # Handle both dict and object formats
             if isinstance(entity, dict):
-                entity_type = entity.get("entity_type", "UNKNOWN")
-                original = entity.get("original_text", "")
+                entity_type = entity.get("entity_type") or entity.get("type", "UNKNOWN")
+                original = entity.get("original_text") or entity.get("original", "")
                 placeholder = entity.get("placeholder", "")
                 score = entity.get("score", 0.0)
             else:
