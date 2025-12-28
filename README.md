@@ -59,7 +59,7 @@ This is a **portfolio demo project**. The LLM chat feature uses Gemini's free ti
 ## 🔗 Links
 
 - **GitHub**: [View Source Code](https://github.com/Vikas-u-rao/pii-anonymization)
-- **LinkedIn**: [Your Profile](https://linkedin.com/in/yourprofile)
+- **LinkedIn**: [Your Profile](https://www.linkedin.com/in/vikas-u-rao)
 
 ---
 
