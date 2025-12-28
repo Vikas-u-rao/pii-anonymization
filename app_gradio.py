@@ -62,12 +62,12 @@ def anonymize_text(text: str) -> tuple[str, str, str]:
                 entity_type = entity.get("entity_type") or entity.get("type", "UNKNOWN")
                 original = entity.get("original_text") or entity.get("original", "")
                 placeholder = entity.get("placeholder", "")
-                score = entity.get("score", 0.0)
+                score = entity.get("confidence") or entity.get("score", 0.0)
             else:
                 entity_type = entity.entity_type
                 original = entity.original_text
                 placeholder = entity.placeholder
-                score = entity.score
+                score = getattr(entity, "confidence", getattr(entity, "score", 0.0))
             
             entities_info += f"- **{entity_type}**: `{original}` → `{placeholder}` (confidence: {score:.2f})\n"
     else:
@@ -401,7 +401,7 @@ with gr.Blocks(title="PII Anonymization Gateway") as demo:
                 
                 ---
                 
-                **GitHub**: [View Source Code](https://github.com/yourusername/pii-anonymization-gateway)
+                **GitHub**: [View Source Code](https://github.com/Vikas-u-rao/pii-anonymization)
                 """
             )
     

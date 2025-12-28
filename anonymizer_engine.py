@@ -114,8 +114,24 @@ class PIIAnonymizer:
         # Add custom Indian recognizers
         if use_indian_recognizers:
             self._register_indian_recognizers()
+            # Remove UK_NHS recognizer as it conflicts with Indian 10-digit phone numbers
+            self._remove_conflicting_recognizers()
         
         logger.info(f"PIIAnonymizer initialized with {len(self.analyzer.registry.recognizers)} recognizers")
+    
+    def _remove_conflicting_recognizers(self):
+        """Remove recognizers that conflict with Indian PII patterns."""
+        # UK NHS numbers are 10 digits, same as Indian phone numbers
+        # This causes false positives when processing Indian data
+        # The recognizer name is the class name by default
+        conflicting_recognizer_names = ["NhsRecognizer"]
+        
+        for recognizer_name in conflicting_recognizer_names:
+            try:
+                self.analyzer.registry.remove_recognizer(recognizer_name)
+                logger.debug(f"Removed conflicting recognizer: {recognizer_name}")
+            except Exception as e:
+                logger.debug(f"Could not remove recognizer {recognizer_name}: {e}")
     
     def _register_indian_recognizers(self):
         """Register custom Indian PII recognizers."""

@@ -178,6 +178,25 @@ class TestIndianRecognizers:
         
         assert "29ABCDE1234F1Z5" not in result.anonymized_text
         assert "[IN_GST_" in result.anonymized_text
+    
+    def test_indian_phone_not_uk_nhs(self, anonymizer):
+        """Should NOT detect Indian phone as UK_NHS."""
+        result = anonymizer.anonymize("Call me at 9876543210")
+        
+        # Should be detected as Indian phone, not UK_NHS
+        entity_types = [e["type"] for e in result.entities_found]
+        assert "UK_NHS" not in entity_types
+        # Should have IN_PHONE_NUMBER or PHONE_NUMBER
+        assert any("PHONE" in t for t in entity_types)
+    
+    def test_entity_confidence_scores(self, anonymizer):
+        """Should return valid confidence scores."""
+        result = anonymizer.anonymize("My email is test@example.com")
+        
+        assert len(result.entities_found) > 0
+        for entity in result.entities_found:
+            assert "confidence" in entity
+            assert 0.0 <= entity["confidence"] <= 1.0
 
 
 # === State Manager Tests ===
