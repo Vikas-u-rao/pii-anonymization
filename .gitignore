@@ -79,3 +79,5 @@ README_HF.md
 requirements-hf.txt
 .env.hf
 setup.sh
+# Copilot instructions (internal documentation)
+.github/copilot-instructions.md
