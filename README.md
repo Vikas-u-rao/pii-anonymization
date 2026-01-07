@@ -1,15 +1,3 @@
----
-title: PII Anonymization Gateway
-emoji: 🛡️
-colorFrom: blue
-colorTo: purple
-sdk: gradio
-sdk_version: 5.7.1
-app_file: app_gradio.py
-pinned: false
-license: mit
----
-
 # PII Anonymization Gateway 🛡️
 
 **Protect sensitive personal information before sending prompts to LLMs like ChatGPT, Claude, or Gemini.**
