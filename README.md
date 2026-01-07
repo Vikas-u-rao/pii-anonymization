@@ -1,15 +1,3 @@
----
-title: PII Anonymization Gateway
-emoji: 🛡️
-colorFrom: blue
-colorTo: purple
-sdk: gradio
-sdk_version: 5.7.1
-app_file: app_gradio.py
-pinned: false
-license: mit
----
-
 # PII Anonymization Gateway 🛡️
 
 ![PII Anonymization Gateway](assets/image.png)
@@ -60,9 +48,9 @@ This is a **portfolio demo project**. The LLM chat feature uses Gemini's free ti
 
 ## 🔗 Links
 
-- **GitHub**: [View Source Code](https://github.com/Vikas-u-rao/pii-anonymization)
-- **LinkedIn**: [Your Profile](https://www.linkedin.com/in/vikas-u-rao)
+- **Hugging-Face**: [PII-Anonymization](https://huggingface.co/spaces/VikasURao/pii-anonymization-gateway)
+- **LinkedIn**: [Vikas U Rao](https://www.linkedin.com/in/vikas-u-rao)
 
 ---
 
-Built by Vikas U Rao showcasing modern AI security practices 🚀
+Built by Vikas U Rao
