@@ -12,6 +12,8 @@ license: mit
 
 # PII Anonymization Gateway 🛡️
 
+![PII Anonymization Gateway](assets/image.png)
+
 **Protect sensitive personal information before sending prompts to LLMs like ChatGPT, Claude, or Gemini.**
 
 ## 🎯 What Does This Do?
